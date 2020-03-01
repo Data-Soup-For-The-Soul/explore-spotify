@@ -1,13 +1,10 @@
-# IMPORTS
-
 import requests
 import datetime
 import time
 import os
 
-# IMPORTS
 
-countryDict = {
+COUNTRY_DICT = {
 'global': 'Global',
 'us': 'United States',
 'gb': 'United Kingdom',
@@ -76,14 +73,14 @@ countryDict = {
 'za': 'South Africa'
 }
 
-startDate = datetime.date(2020, 1, 31)
+START_DATE = datetime.date(2020, 1, 31)
 
-outputFolder = "/home/michael/DataSoup/SeasonalMusic/DATA/rawChartCsvs/"
+OUTPUT_FOLDER = "../"
 
 #loop through every country and date
-for currCountry in countryDict.keys():
+for currCountry in COUNTRY_DICT.keys():
     print("Starting Country " + currCountry)
-    currDate = startDate
+    currDate = START_DATE
     while currDate >= datetime.date(2016, 12, 30):
 
         #build the link and file name based on the country and the dates
@@ -91,7 +88,7 @@ for currCountry in countryDict.keys():
         fileName = currCountry.upper() + "_" + currDate.strftime("%Y%m%d") + "_" + "WEEKLY.csv"
 
         #if the file has not already been downloaded before, download
-        if not os.path.exists(outputFolder + fileName):
+        if not os.path.exists(OUTPUT_FOLDER + fileName):
             try:
                 #the file has not been downloaded.  Download it now
                 r = requests.get(url, allow_redirects=True)
@@ -99,7 +96,7 @@ for currCountry in countryDict.keys():
                     print("Non CSV found " + fileName)
                     time.sleep(2)
                     break
-                open(outputFolder + fileName, 'wb').write(r.content)
+                open(OUTPUT_FOLDER + fileName, 'wb').write(r.content)
                 print("Downloaded " + fileName[:-4])
                 time.sleep(2)
             except Exception as e:
