@@ -1,6 +1,12 @@
+import requests
 from datetime import date
 
 from django.db import models
+
+from feed_spotify.settings import SPOTIFY_AUDIO_FEATURES_URL
+from spotify.auth import get_auth
+
+SPOTIFY_HEADERS = get_auth()
 
 
 class Artist(models.Model):
@@ -29,6 +35,7 @@ class Track(models.Model):
     valence = models.FloatField(null=True)
     tempo = models.FloatField(null=True)
     liveness = models.FloatField(null=True)
+    danceability = models.FloatField(null=True)
     time_signature = models.PositiveSmallIntegerField(null=True)
     duration = models.PositiveIntegerField(null=True)
 
@@ -43,6 +50,51 @@ class Track(models.Model):
             identifier=track_id, defaults={'name': track_name, 'identifier': track_id}
         )
         return track, created
+
+    def set_metrics(self):
+
+        """
+        {
+          "duration_ms" : 255349,
+          "key" : 5,
+          "mode" : 0,
+          "time_signature" : 4,
+          "acousticness" : 0.514,
+          "danceability" : 0.735,
+          "energy" : 0.578,
+          "instrumentalness" : 0.0902,
+          "liveness" : 0.159,
+          "loudness" : -11.840,
+          "speechiness" : 0.0461,
+          "valence" : 0.624,
+          "tempo" : 98.002,
+          "id" : "06AKEBrKUckW0KREUWRnvT",
+          "uri" : "spotify:track:06AKEBrKUckW0KREUWRnvT",
+          "track_href" : "https://api.spotify.com/v1/tracks/06AKEBrKUckW0KREUWRnvT",
+          "analysis_url" : "https://api.spotify.com/v1/audio-analysis/06AKEBrKUckW0KREUWRnvT",
+          "type" : "audio_features"
+        }
+        """
+        url = SPOTIFY_AUDIO_FEATURES_URL.format(id=self.identifier)
+        response = requests.get(url, headers=SPOTIFY_HEADERS)
+        if response and response.code == 200:
+            self.duration = response.get('duration_ms')
+            self.key = response.get('key')
+            self.mode = response.get('mode')
+            self.time_signature = response.get('time_signature')
+            self.acousticness = response.get('acousticness')
+            self.danceability = response.get('danceability')
+            self.instrumentalness = response.get('instrumentalness')
+            self.liveness = response.get('liveness')
+            self.loudness = response.get('loudness')
+            self.speechiness = response.get('speechiness')
+            self.valence = response.get('valence')
+            self.tempo = response.get('tempo')
+            self.save()
+            return True
+        else:
+            print('API Miss for', self.identifier)
+            return False
 
 
 class Hit(models.Model):
@@ -60,6 +112,7 @@ class Hit(models.Model):
         track, _ = Track.get(track_name, track_id, artist_name)
         hit = track.hits.create(position=position, streams=streams, country=country, week_of=week_of)
         return hit
+
 
 
 
