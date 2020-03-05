@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
     'spotify',
 ]
 
@@ -192,3 +193,16 @@ COUNTRIES = {
 'vn': 'Viet Nam',
 'za': 'South Africa'
 }
+
+BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Africa/Nairobi'
+
+
+CELERY_ENABLED = False
+
+SPOTIFY_CLIENT_ID = '44c8c89e98c9476a9435834688d0b012'
+SPOTIFY_CLIENT_SECRET = '420433b7b60f46e2a42ca2afed6a2d8a'
